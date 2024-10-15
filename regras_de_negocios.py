@@ -1,7 +1,14 @@
 import random
 
 from models import Carta
-from objetos_de_valor import Naipes, VALORES_DAS_CARTAS
+from objetos_de_valor import Naipes, VALORES_DAS_CARTAS, PESO_DAS_CARTAS
+
+
+def extrair_peso_pelo_nome_da_carta(nome_carta: str) -> str:
+    nome_carta = verificar_manilha(nome_carta)
+    if nome_carta not in ["Espadilha", "Zap", "7 de Copas", "7 de Ouros"]:
+        return nome_carta.split(" de ")[0]
+    return nome_carta
 
 
 def verificar_manilha(nome_carta: str) -> str:
@@ -9,7 +16,8 @@ def verificar_manilha(nome_carta: str) -> str:
         return "Espadilha"
     elif nome_carta == "4 de Paus":
         return "Zap"
-    return nome_carta
+    else:
+        return nome_carta
 
 
 def gerar_cartas_e_naipes():
@@ -19,13 +27,14 @@ def gerar_cartas_e_naipes():
     for naipe in naipes:
         for valor_carta in VALORES_DAS_CARTAS:
             nome_carta = f"{valor_carta} de {naipe}"
+            peso_carta = extrair_peso_pelo_nome_da_carta(nome_carta)
             nome_carta = verificar_manilha(nome_carta)
 
             carta = Carta(
                 nome=nome_carta,
                 valor=valor_carta,
                 naipe=naipe,
-                peso=VALORES_DAS_CARTAS.index(valor_carta),
+                peso=PESO_DAS_CARTAS.index(peso_carta),
             )
             cartas.append(carta)
 
@@ -46,7 +55,31 @@ def distribuir_cartas(
 
 
 def escolher_carta_ia(
-    rodada_atual: int,
-    cartas_mesa: list[Carta],
-    carta_parceiro: Carta,
-) -> Carta: ...
+    indice_da_mao: int,
+    cartas_na_rodada: list[Carta | None],
+    carta_parceiro: Carta | None,
+    cartas_disponiveis: list[Carta],
+) -> Carta | int:
+    """
+    Logicas para escolher a carta da IA. Iremos evoluindo ela, iniciaremos com escolhas simples, randomicas
+    """
+    ...
+    # todo decidir a carta a ser jogada de acordo com rodada, cartas na mesa, carta do parceiro e cartas disponiveis
+    # return random.choice(cartas_disponiveis)
+    return random.randint(0, len(cartas_disponiveis) - 1)
+
+
+def verificar_carta_vencedora_da_rodada(lista_de_cartas: dict[str, Carta]) -> str:
+    menor_indice = float(
+        "inf"
+    )  # Começa com um valor infinito para facilitar a comparação
+    jogador_com_maior_carta: str = ""
+
+    for jogador, carta in lista_de_cartas.items():
+        if carta.peso < menor_indice:
+            menor_indice = carta.peso
+            jogador_com_maior_carta = jogador
+
+    # todo adicionar empate
+
+    return jogador_com_maior_carta
